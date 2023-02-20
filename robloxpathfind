@@ -1,9 +1,49 @@
+wait(1)
 local player=game.Players.LocalPlayer
 local Character=player.Character
 local myHuman = Character:WaitForChild("Humanoid")
 local myRoot = Character:WaitForChild("HumanoidRootPart")
 local head = Character:WaitForChild("Head")
 local lowerTorso = Character:WaitForChild("LowerTorso")
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Controls = require(LocalPlayer.PlayerScripts.PlayerModule):GetControls()
+
+
+
+if not player.PlayerGui:FindFirstChild("ControlGui") then
+	
+	ScreenGui=Instance.new("ScreenGui",player.PlayerGui)
+	ScreenGui.Name="ControlGui"
+	TextButton=Instance.new("TextButton",ScreenGui)
+	Toggle=Instance.new("BoolValue",ScreenGui)
+	Toggle.Value=false
+	
+	TextButton.Text="Toggle"
+	TextButton.TextColor3=Color3.new(0.776471, 0.776471, 0.776471)
+	TextButton.Size=UDim2.new(0.177, 0,0.083, 0)
+	TextButton.Position=UDim2.new(0.023, 0,0.895, 0)
+	TextButton.Transparency=0.5
+	TextButton.BackgroundColor3=Color3.new(0.666667, 0, 0)
+
+
+
+local function leftMouseButtonDown(x, y)
+
+		if Toggle.Value==true then
+			Toggle.Value=false
+			TextButton.BackgroundColor3=Color3.new(0.666667, 0, 0)
+			Controls:Enable()
+		else
+			Toggle.Value=true
+			TextButton.BackgroundColor3=Color3.new(0.333333, 0.666667, 0)
+			Controls:Disable()
+		end
+
+end
+
+TextButton.MouseButton1Down:Connect(leftMouseButtonDown)
+
 
 print("DOING")
 
@@ -41,14 +81,14 @@ function findPath(target)
 	path:ComputeAsync(myRoot.Position,target.Position)
 	local waypoints = path:GetWaypoints()
 
-	if path.Status == Enum.PathStatus.Success then
+	if path.Status == Enum.PathStatus.Success and Toggle.Value==true then
 		for _, waypoint in ipairs(waypoints) do
 			if waypoint.Action == Enum.PathWaypointAction.Jump then
 				myHuman.Jump = true
 			end
 			myHuman:MoveTo(waypoint.Position)
 			local timeOut = myHuman.MoveToFinished:Wait(1)
-			if not timeOut then
+			if not timeOut or Toggle.Value==false then
 				myHuman.Jump = true
 				print("Path too long!")
 				findPath(target)
@@ -64,7 +104,7 @@ function findPath(target)
 					elseif target.Parent == nil then
 						break
 					end
-				until checkSight(target) == false or myHuman.Health < 1 or target.Parent.Humanoid.Health < 1
+				until checkSight(target) == false or Toggle.Value==false or myHuman.Health < 1 or target.Parent.Humanoid.Health < 1
 				break
 			end
 			if (myRoot.Position - waypoints[1].Position).magnitude > 20 then
@@ -97,7 +137,7 @@ function findTarget()
 		local human = v:FindFirstChild("Humanoid")
 		local torso = v:FindFirstChild("Torso") or v:FindFirstChild("HumanoidRootPart")
 		if human and torso and v.Name ~= Character.Name then
-			if (myRoot.Position - torso.Position).magnitude < dist and human.Health > 0 then
+				if (myRoot.Position - torso.Position).magnitude < dist and human.Health > 0 and Toggle.Value==true then
 				table.insert(potentialTargets,torso)
 			end
 		end
@@ -136,14 +176,18 @@ end)
 
 function main()
 	local target = findTarget()
+	print("MAIn")
 	if target then
 		findPath(target)
 	end
 end
 
 while wait(0.1) do
-	if myHuman.Health < 1 then
+	if myHuman.Health < 1  then
 		break
+	end
+	if Toggle.Value==false then
+		continue
 	end
 	main()
 end
@@ -152,7 +196,7 @@ end
 
 
 
-
+end
 
 
 
