@@ -57,7 +57,7 @@ function findPath(target)
 			if checkSight(target) then
 				repeat
 					print("Moving directly to the target1")
-					myHuman:MoveTo(target.Position)
+					myHuman:MoveTo(target.Position + target.CFrame.LookVector * -5)
 					wait(0.1)
 					if target == nil then
 						break
