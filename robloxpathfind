@@ -46,7 +46,7 @@ function findPath(target)
 			if waypoint.Action == Enum.PathWaypointAction.Jump then
 				myHuman.Jump = true
 			end
-			myHuman:MoveTo(waypoint.Position+ target.CFrame.LookVector * -3)
+			myHuman:MoveTo(waypoint.Position)
 			local timeOut = myHuman.MoveToFinished:Wait(1)
 			if not timeOut then
 				myHuman.Jump = true
@@ -57,7 +57,7 @@ function findPath(target)
 			if checkSight(target) then
 				repeat
 					print("Moving directly to the target1")
-					myHuman:MoveTo(target.Position + target.CFrame.LookVector * -3)
+					myHuman:MoveTo(target.Position + target.CFrame.LookVector * -2)
 					wait(0.1)
 					if target == nil then
 						break
